@@ -1,0 +1,25 @@
+# Rust derleme çıktıları
+/target/
+rust_tests/target/
+memory/target/
+libraries_opensource/cmdlib/target/
+**/*.rs.bk
+
+# Python derleme ve kütüphane dosyaları
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Binary ve Kütüphane dosyaları (Az önceki hatanın sebebi bunlardı)
+*.lib
+*.rlib
+*.exe
+*.pdb
+*.dll
+*.so
+*.dylib
+
+# Ortam dosyaları
+.env
+.venv
+venv/
