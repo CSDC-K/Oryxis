@@ -1,1 +1,0 @@
-2026/02/19-21:27:15.760794 10a0 [WARN] [db/db_impl/db_impl_open.cc:2688] DB::Open() failed: IO error: Failed to create lock file: mydb/LOCK: Dosya baþka bir iþlem tarafýndan kullanýldýðýndan bu iþlem dosyaya eriþemiyor.

@@ -20,7 +20,7 @@ pub fn execute_script(code: String) -> PyResult<String> {
         let path_list: Vec<String> = sys.getattr("path")?.extract()?;
         if !path_list.contains(&project_root) {
             sys.getattr("path")?.call_method1("insert", (0, &project_root))?;
-        }
+        }  
 
         let libs_path = std::env::current_dir()
             .unwrap_or_default()
