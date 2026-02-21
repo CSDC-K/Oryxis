@@ -1,9 +1,40 @@
-use gemini_rust::{GeminiBuilder, prelude::*};        // GEMINI API MANAGEMENT
+use gemini_rust::{prelude::*};                       // GEMINI API LIBRARY
 use dotenv::dotenv;                                  // READING .ENV FILE
 use std::env;                                        // READING .ENV FILE
+use std::fs::File;                                   // READING PROMPT.TXT
+use std::io::{self, Read};                           // READING PROMPT.TXT
+use tokio;                                           // ASYNC PROCESS
 
 
-fn main() {
+async fn generate_response_from_api(            // GENERATE RESPONSE
+    temp_val : Option<f32>,                     // CONFIG
+    top_p_val : Option<f32>,                    // CONFIG
+    top_k_val : Option<i32>,                    // CONFIG
+    seed_val : Option<i32>,                     // CONFIG
+    message : String,                           // RESPONSE
+    ctx_builder : ContentBuilder                // BUILDER
+) -> Result<GenerationResponse, ClientError> {
+
+    let config = GenerationConfig {
+        temperature: temp_val,
+        top_p: top_p_val,
+        top_k: top_k_val,
+        seed: seed_val,
+        // Add other fields if required by GenerationConfig
+        ..Default::default()
+    };
+
+    let response = ctx_builder
+        .with_generation_config(config)
+        .with_user_message(message)
+        .execute()
+        .await;
+
+    response
+}
+
+#[tokio::main]
+async fn main() {
     // .env Reading
     dotenv().ok(); // Reads the .env file
 
@@ -19,23 +50,38 @@ fn main() {
     };
 
     let model_type = match model_type.as_str() {
-        "Gemini3Pro" => Some(Model::Gemini3Pro),
-        "Gemini3Flash" => Some(Model::Gemini3Flash),
-        "Gemini25Pro" => Some(Model::Gemini25Pro),
-        "Gemini25Flash" => Some(Model::Gemini25Flash),
-        _ => None,
+        "Gemini3Pro" => Model::Gemini3Pro,
+        "Gemini3Flash" => Model::Gemini3Flash,
+        "Gemini25Pro" => Model::Gemini25Pro,
+        "Gemini25Flash" => Model::Gemini25Flash,
+        _ => Model::Gemini25Flash,
     };
+
+    println!("MODEL NAME : {}", model_type.as_str());
 
     // Model Creation
-    let gemini = match model_type {
-        Some(model) => GeminiBuilder::new(&api_key)
-            .with_model(model).build(),
-        None => {
-            println!("Invalid MODEL type in .env file");
-            return;
-        }
-    };
+    let client = Gemini::with_model(&api_key, model_type).unwrap();
+    let contextbuilder = Gemini::generate_content(&client);
+
+    // System Prompt Integration
+    let mut file = File::open("prompt.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    let contextbuilder = contextbuilder.with_system_prompt(&contents);
 
     
+    let result = generate_response_from_api(
+        Some(0.7),
+        Some(0.9),
+        None,
+        None,
+        "open spotify".to_string(),
+        contextbuilder
+    ).await;
+
+    match result {
+        Ok(succes) => println!("RESPONSE : {}", succes.text()),
+        Err(e_) => println!("ERROR : {}", e_)
+    }
 
 }
