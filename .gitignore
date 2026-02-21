@@ -1,6 +1,7 @@
 # Rust derleme çıktıları
 /target/
 rust_tests/target/
+rust_tests_api/target/
 memory/target/
 libraries_opensource/cmdlib/target/
 **/*.rs.bk
