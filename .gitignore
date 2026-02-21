@@ -2,6 +2,7 @@
 /target/
 rust_tests/target/
 rust_tests_api/target/
+ORYXIS/target/
 memory/target/
 libraries_opensource/cmdlib/target/
 **/*.rs.bk
@@ -24,3 +25,4 @@ __pycache__/
 .env
 .venv
 venv/
+.wakatime-project

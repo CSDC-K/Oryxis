@@ -1,0 +1,13 @@
+[package]
+name = "ORYXIS"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.102"
+async-openai = "0.33.0"
+dotenv = "0.15.0"
+gemini-rust = "1.7.1"
+groq-api-rs = "0.2.0"
+gruq = "0.1.1"
+tokio = { version = "1.49.0", features = ["full"] }
