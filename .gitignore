@@ -5,6 +5,15 @@ rust_tests_api/target/
 ORYXIS/target/
 memory/target/
 libraries_opensource/cmdlib/target/
+
+# Rust package lock dosyası
+Cargo.lock
+rust_tests/Cargo.lock
+rust_tests_api/Cargo.lock
+ORYXIS/Cargo.lock
+memory/Cargo.lock
+libraries_opensource/cmdlib/Cargo.lock
+
 **/*.rs.bk
 
 # Python derleme ve kütüphane dosyaları
