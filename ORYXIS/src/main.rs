@@ -1,10 +1,13 @@
 pub mod gemini_api;             // GEMINI API
 pub mod groq_api;               // GROQ API
+// pub mod executer;               // PYTHON CODE EXECUTER
+pub mod script;                 // RESPONSE CATCHER 
+
 use dotenv::dotenv;             // READING .ENV FILE
 use std::env;                   // READING .ENV FILE
 use tokio;                      // ASYNC PROCESS
 use std::fs::File;              // READING PROMPT.TXT
-use std::io::{self, Read};     // READING PROMPT.TXT
+use std::io::{self, Read};      // READING PROMPT.TXT
 
 #[tokio::main]
 async fn main() {
