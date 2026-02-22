@@ -1,6 +1,6 @@
 pub mod gemini_api;             // GEMINI API
 pub mod groq_api;               // GROQ API
-// pub mod executer;               // PYTHON CODE EXECUTER
+pub mod executer;               // PYTHON CODE EXECUTER
 pub mod script;                 // RESPONSE CATCHER 
 
 use dotenv::dotenv;             // READING .ENV FILE
