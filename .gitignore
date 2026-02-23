@@ -1,5 +1,6 @@
 # Rust derleme çıktıları
 /target/
+api_stresser/
 rust_tests/target/
 rust_tests_api/target/
 ORYXIS/target/
@@ -35,3 +36,11 @@ __pycache__/
 .venv
 venv/
 .wakatime-project
+*.pyd
+*.bat
+*.log
+*.css
+*.cat
+mydb
+python312
+python312._pth

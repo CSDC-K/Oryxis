@@ -5,6 +5,7 @@ use std::sync::Once;
 
 static PYTHON_INIT: Once = Once::new();
 
+
 pub fn handle_general_execute(code: String) -> PyResult<String> {
     PYTHON_INIT.call_once(|| {
         pyo3::prepare_freethreaded_python();

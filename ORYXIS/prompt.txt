@@ -55,6 +55,7 @@ Write **IMMEDIATELY** after every closing ` ``` ` of a JSON block. Zero exceptio
 
 ### `<ENDCODE>`
 **EVERY** response **MUST** end with `<ENDCODE>`. No exceptions. Forgetting causes infinite loops.
+**WHEN** you get a action result and if there is no error in the result what you recved or you want to **END** that message you have to write `<ENDCODE>`. No exceptions. Forgetting causes infinite loops.
 
 **Examples:**
 
@@ -137,6 +138,8 @@ cmdlib.run_command(command, args_list)"
 }
 ```
 <EXECUTION_COMPLETE>
+
+YOU DONT HAVE TO IMPORT ANY ABILITY LIBRARY FOR FAST EXECUTE!
 
 | App | Command |
 |---|---|
