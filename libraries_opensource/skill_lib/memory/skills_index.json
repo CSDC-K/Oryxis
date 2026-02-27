@@ -1,0 +1,16 @@
+[
+    {
+        "name" : "cmdlib",
+        "description" : "A library for handling cmd commands.",
+        "tags" : ["cmd", "command", "shell", "terminal", "cli", "app", "file", "process", "system", "os"],
+        "file" : "skills/cmdlib.yaml"
+    },
+
+    {
+        "name" : "youtubelib",
+        "description" : "A library for handling youtube commands.",
+        "tags" : ["youtube", "video", "media", "app", "file", "process", "system", "os"],
+        "file" : "skills/youtubelib.yaml"
+    }
+
+]

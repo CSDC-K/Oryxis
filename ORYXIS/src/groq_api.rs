@@ -4,13 +4,14 @@ use anyhow;
 
 use crate::script::{fix_json_multiline_strings, ScriptResponse, ActionType};
 use crate::executer::{handle_general_execute, handle_fast_execute};
+use crate::errors;
 
 
-pub async fn run_model(api_key: String, system_prompt: String) -> anyhow::Result<()> {
+pub async fn groq_api(api_key: String, prompt: String, model_type: String) -> anyhow::Result<(), errors::OryxisError> {
     let mut client = Groq::new(api_key.as_str());
     client.add_messages(vec![Message::SystemMessage {
         role: Some("system".to_string()),
-        content: Some(system_prompt),
+        content: Some(prompt),
         name: None,
         tool_call_id: None,
     }]);
@@ -69,7 +70,7 @@ pub async fn run_model(api_key: String, system_prompt: String) -> anyhow::Result
                                         println!("║ Event: {}", event_code);
                                         println!("╚════════════════════════════════════════╝");
 
-                                        let result = handle_fast_execute(event_code);
+                                        let result = handle_fast_execute(event_code).await;
                                         let is_error = result.contains("\"error\"");
 
                                         if is_error {
@@ -95,7 +96,7 @@ pub async fn run_model(api_key: String, system_prompt: String) -> anyhow::Result
                                         println!("║ Code: {}", event_code);
                                         println!("╚════════════════════════════════════════╝");
 
-                                        let result = match handle_general_execute(event_code.to_string()) {
+                                        let result = match handle_general_execute(event_code.to_string()).await {
                                             Ok(r) => {
                                                 let is_error = r.contains("Python Error:");
                                                 if is_error {
@@ -153,8 +154,7 @@ pub async fn run_model(api_key: String, system_prompt: String) -> anyhow::Result
                     }
                 }
                 Err(e) => {
-                    println!("Error: {:?}", e);
-                    break;
+                    return Err(errors::OryxisError::GroqRunError(format!("{:?}", e)));
                 }
                 _ => { break; }
             }

@@ -3,10 +3,11 @@ use pyo3::prelude::*;
 use pyo3::types::*;
 use std::sync::Once;
 
+
 static PYTHON_INIT: Once = Once::new();
 
 
-pub fn handle_general_execute(code: String) -> PyResult<String> {
+pub async fn handle_general_execute(code: String) -> PyResult<String,> {
     PYTHON_INIT.call_once(|| {
         pyo3::prepare_freethreaded_python();
     });
@@ -26,7 +27,7 @@ pub fn handle_general_execute(code: String) -> PyResult<String> {
 
         let libs_path = std::env::current_dir()
             .unwrap_or_default()
-            .join("libraries") // Alt klasöre in
+            .join("skills/lib") 
             .to_string_lossy()
             .to_string();
 
@@ -118,7 +119,7 @@ pub fn handle_general_execute(code: String) -> PyResult<String> {
 }
 
 
-pub fn handle_fast_execute(event_code: &str) -> String {
+pub async fn handle_fast_execute(event_code: &str) -> String {
     let python_code = if event_code.starts_with("_event_CHECKSKILLS->") {
         let filter_part = event_code.trim_start_matches("_event_CHECKSKILLS->").trim();
         let keywords: Vec<&str> = filter_part.split(',').map(|s| s.trim()).collect();
@@ -188,7 +189,7 @@ task()"#,
         return format!("{{\"status\": \"error\", \"message\": \"Unknown fast_execute event: {}\"}}", event_code);
     };
 
-    match handle_general_execute(python_code) {
+    match handle_general_execute(python_code).await {
         Ok(result) => result,
         Err(e) => format!("{{\"status\": \"error\", \"message\": \"{}\"}}", e),
     }

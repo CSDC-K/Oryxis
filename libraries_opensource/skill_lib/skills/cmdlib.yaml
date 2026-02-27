@@ -1,0 +1,86 @@
+name: cmdlib
+description: >
+  Library for executing Windows CMD commands, launching applications, 
+  and controlling system-level processes. Supports both lightweight 
+  single-call execution and complex multi-step Python scripting.
+
+version: "1.0"
+author: "Kuzey"
+entrypoint: skills/lib/cmdlib.pyd
+
+tags:
+  - cmd
+  - terminal
+  - windows
+  - system
+  - execute
+  - automation
+  - process
+  - app_launch
+  - app
+
+permissions:
+  - system_execution
+  - process_spawn
+
+
+
+abilities:
+  fast_execute:
+    description: >
+      Used for executing a single, immediate command. No 'import' required.
+      Best for quick "open" or "start" actions where overhead should be minimal.
+    usage: "cmdlib.run_command(cmd, args)"
+
+  execute:
+    description: >
+      Used for complex workflows involving multiple commands, loops, or 
+      conditional logic. Requires 'import cmdlib' and a full Python block.
+    usage: "Full Python script block."
+
+
+
+examples:
+
+  - title: Open Spotify (Fast)
+    type: fast_execute
+    description: Quickly launch Spotify using its protocol handler.
+    code: |
+      cmdlib.run_command("cmd", ["/C", "start", "spotify://"])
+
+  - title: Open Browser (Fast)
+    type: fast_execute
+    description: Open a specific URL in the default system browser.
+    code: |
+      cmdlib.run_command("cmd", ["/C", "start", "https://google.com"])
+
+  - title: Launch VS Code (Fast)
+    type: fast_execute
+    description: Start VS Code directly from the system PATH.
+    code: |
+      cmdlib.run_command("cmd", ["/C", "code"])
+
+  - title: Multi-App Workspace Setup
+    type: execute
+    description: Launch multiple productivity apps sequentially within a Python loop.
+    code: |
+      import cmdlib
+      
+      apps = ["spotify://", "discord://", "calc"]
+      for app in apps:
+          cmdlib.run_command("cmd", ["/C", "start", app])
+
+  - title: System File Operations
+    type: execute
+    description: Execute a sequence of shell commands to manage files.
+    code: |
+      import cmdlib
+      
+      # List directory content
+      cmdlib.run_command("cmd", ["/C", "dir"])
+      # Backup a specific configuration file
+      cmdlib.run_command("cmd", ["/C", "copy", "config.json", "config_backup.json"])
+
+security_notes: >
+  This ability grants full command-line access. Untrusted input may 
+  lead to critical system modifications. Use only in secured environments.

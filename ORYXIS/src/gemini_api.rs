@@ -5,6 +5,12 @@ use std::fs::File;                                   // READING PROMPT.TXT
 use std::io::{self, Read, Write};                    // READING PROMPT.TXT
 use tokio;                                           // ASYNC PROCESS
 
+use crate::errors;                                   // ERROR TYPES
+use crate::script::{fix_json_multiline_strings,      // SCRIPT PARSING
+ScriptResponse, ActionType};                         // PYTHON CODE EXECUTER
+use crate::executer::{handle_general_execute, 
+handle_fast_execute};
+
 
 async fn generate_response_from_api(            // GENERATE RESPONSE
     temp_val : Option<f32>,                     // CONFIG
@@ -34,21 +40,8 @@ async fn generate_response_from_api(            // GENERATE RESPONSE
     response
 }
 
-#[tokio::main]
-async fn main() {
-    // .env Reading
-    dotenv().ok(); // Reads the .env file
 
-    let api_key = env::var("API_KEY");
-    let model_type = env::var("MODEL").unwrap();
-
-    let api_key = match api_key {
-        Ok(val) => val,
-        Err(e) => {
-            println!("Error API_KEY: {}", e);
-            return;
-        }
-    };
+pub async fn gemini_api(api_key: String, prompt: String, model_type: String) -> Result<(), errors::OryxisError> {
 
     let model_type = match model_type.as_str() {
         "Gemini3Pro" => Model::Gemini3Pro,
@@ -66,10 +59,7 @@ async fn main() {
     let contextbuilder = Gemini::generate_content(&client);
 
     // System Prompt Integration
-    let mut file = File::open("prompt.txt").unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
-    let mut contextbuilder = contextbuilder.with_system_prompt(&contents);
+    let mut contextbuilder = contextbuilder.with_system_prompt(&prompt);
     println!("You can write 'exit' to quit");
 
     loop {
@@ -89,12 +79,48 @@ async fn main() {
         ).await;
 
         match result {
-            Ok(succes) => println!("RESPONSE : {}", succes.text()),
-            Err(e_) => println!("ERROR : {}", e_)
-        }
+            Ok(succes) => {
+                
+                
+                println!("RESPONSE : {}", succes.text());
 
-        if userinput == "exit" {
-            break;
+                loop {
+                    
+                    if let Some(json_start) = succes.text().find("```json") {
+                        let after_marker = json_start + 7;
+                        if let Some(json_end) = succes.text()[after_marker..].find("```") {
+                            let succes_text = succes.text();
+                            let json_block = succes_text[after_marker..after_marker + json_end].trim();
+                            let fixed_json = fix_json_multiline_strings(json_block);
+
+                            let exec_output: Result<String, errors::OryxisError> = match serde_json::from_str::<ScriptResponse>(&fixed_json) {
+                                Ok(action) if action.action == ActionType::fast_execute => {
+                                    let event_code = action.code.trim();
+                                    Ok(handle_fast_execute(event_code).await)
+                                },
+                                Ok(action) if action.action == ActionType::execute => {
+                                    let event_code = action.code.trim();
+                                    Ok(handle_general_execute(event_code.to_string()).await.map_err(|e| errors::OryxisError::PyExecutionError(e.to_string()))?)
+                                },
+                                Ok(_) => Err(errors::OryxisError::JsonParseError("Unknown action type".to_string())),
+                                Err(e) => Err(errors::OryxisError::JsonParseError(e.to_string())),
+                            };
+
+                            match exec_output {
+                                Ok(output) => println!("EXECUTION OUTPUT : {}", output),
+                                Err(e) => println!("EXECUTION ERROR : {}", e),
+                            }
+                        }
+                    }
+
+                }
+
+        
+        },
+
+            Err(e_) => {
+                return Err(errors::OryxisError::GeminiRunError(format!("{:?}", e_)));
+            }
         }
 
     }
