@@ -1,0 +1,55 @@
+name: memorylib
+description: >
+  Persistent memory across ALL conversations. AI can remember user preferences,
+  past tasks, important facts. Stored in local SQLite - no cloud needed.
+  Bu skill sayesinde Oryxis gerçek anlamda "öğrenir".
+
+version: "1.0"
+author: "Kuzey"
+
+tags:
+  - memory
+  - remember
+  - recall
+  - learn
+  - user
+  - preference
+  - history
+  - persistent
+
+abilities:
+  remember:
+    description: >
+      Save a key-value memory. Örn: kullanıcı adı, sevdiği müzik,
+      sık kullandığı dosya yolları, tercihler.
+    usage: "memorylib.remember(key, value, category='general')"
+
+  recall:
+    description: Retrieve a specific memory by key.
+    usage: "memorylib.recall(key)"
+
+  search_memory:
+    description: Fuzzy search across all memories.
+    usage: "memorylib.search('spotify')"
+
+  forget:
+    description: Delete a memory.
+    usage: "memorylib.forget(key)"
+
+  list_all:
+    description: List all stored memories.
+    usage: "memorylib.list_all(category=None)"
+
+examples:
+  - title: Kullanıcı Adını Kaydet
+    type: fast_execute
+    code: |
+      memorylib.remember('user_name', 'Kuzey', category='user')
+
+  - title: Tercih Hatırla
+    type: execute
+    code: |
+      import memorylib
+      name = memorylib.recall('user_name')
+      prefs = memorylib.search('music')
+      print(f"Kullanıcı: {name}, Müzik tercihleri: {prefs}")

@@ -1,0 +1,62 @@
+name: weblib
+description: >
+  Library for web browsing, URL opening, and web content fetching.
+  Can open URLs in browser or fetch page content as text for AI analysis.
+
+version: "1.0"
+author: "Kuzey"
+entrypoint: skills/lib/weblib.pyd
+
+tags:
+  - web
+  - browser
+  - http
+  - url
+  - fetch
+  - scrape
+  - media
+
+abilities:
+  open_url:
+    description: Open a URL in the default system browser.
+    usage: "cmdlib.run_command('cmd', ['/C', 'start', '<url>'])"
+
+  fetch_text:
+    description: >
+      Fetch the text content of a URL (no browser needed).
+      Returns plain text stripped of HTML. 
+      Great for reading articles, docs, prices, weather.
+    usage: "weblib.fetch_text(url)"
+
+  fetch_json:
+    description: Fetch and parse JSON from an API endpoint.
+    usage: "weblib.fetch_json(url, headers={})"
+
+  search_web:
+    description: >
+      Search DuckDuckGo and return top N result titles+URLs.
+      No API key needed. Kullanıcı "internette ara" dediğinde kullan.
+    usage: "weblib.search(query, max_results=5)"
+
+examples:
+  - title: Haber Oku
+    type: execute
+    code: |
+      import weblib
+      text = weblib.fetch_text("https://news.ycombinator.com")
+      print(text[:2000])
+
+  - title: Hava Durumu API
+    type: execute  
+    code: |
+      import weblib
+      data = weblib.fetch_json("https://wttr.in/Istanbul?format=j1")
+      print(data['current_condition'][0]['temp_C'], '°C')
+
+  - title: Web Arama
+    type: execute
+    code: |
+      import weblib
+      results = weblib.search("Rust programming 2025", max_results=3)
+      for r in results:
+          print(r['title'], r['url'])

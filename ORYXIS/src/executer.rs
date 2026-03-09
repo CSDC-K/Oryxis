@@ -1,4 +1,3 @@
-
 use pyo3::prelude::*;
 use pyo3::types::*;
 use std::sync::Once;
@@ -6,11 +5,14 @@ use std::sync::Once;
 
 static PYTHON_INIT: Once = Once::new();
 
-
-pub async fn handle_general_execute(code: String) -> PyResult<String,> {
+pub fn ensure_python_init() {
     PYTHON_INIT.call_once(|| {
         pyo3::prepare_freethreaded_python();
     });
+}
+
+pub async fn handle_general_execute(code: String) -> PyResult<String,> {
+    ensure_python_init();
 
     Python::with_gil(|py| {
         let sys = py.import("sys")?;
@@ -116,81 +118,4 @@ pub async fn handle_general_execute(code: String) -> PyResult<String,> {
             }
         }
     })
-}
-
-
-pub async fn handle_fast_execute(event_code: &str) -> String {
-    let python_code = if event_code.starts_with("_event_CHECKSKILLS->") {
-        let filter_part = event_code.trim_start_matches("_event_CHECKSKILLS->").trim();
-        let keywords: Vec<&str> = filter_part.split(',').map(|s| s.trim()).collect();
-        let keywords_py: Vec<String> = keywords.iter().map(|k| format!("'{}'", k.to_lowercase())).collect();
-        format!(
-r#"import memory
-
-def task():
-    db = memory.OryxisMemory('./mydb')
-    skills = db.list_skills()
-    keywords = [{}]
-    filtered = [s for s in skills if any(kw in s.get('name','').lower() or kw in s.get('description','').lower() for kw in keywords)]
-    return {{'status': 'success', 'count': len(filtered), 'skills': filtered}}
-
-task()"#,
-            keywords_py.join(", ")
-        )
-    } else if event_code.starts_with("_event_CHECKSKILLS_") {
-        r#"import memory
-
-def task():
-    db = memory.OryxisMemory('./mydb')
-    skills = db.list_skills()
-    return {'status': 'success', 'count': len(skills), 'skills': skills}
-
-task()"#.to_string()
-    } else if event_code.starts_with("_event_GETSKILL->") {
-        let skill_name = event_code.trim_start_matches("_event_GETSKILL->").trim();
-        format!(
-r#"import memory
-
-def task():
-    db = memory.OryxisMemory('./mydb')
-    skill = db.get_skill('{}')
-    if skill:
-        return {{'status': 'success', 'skill': skill}}
-    return {{'status': 'error', 'message': 'Skill not found: {}'}}
-
-task()"#,
-            skill_name, skill_name
-        )
-    } else if event_code.starts_with("_event_DELETESKILL->") {
-        let skill_name = event_code.trim_start_matches("_event_DELETESKILL->").trim();
-        format!(
-r#"import memory
-
-def task():
-    db = memory.OryxisMemory('./mydb')
-    db.delete_skill('{}')
-    return {{'status': 'success', 'deleted': '{}'}}
-
-task()"#,
-            skill_name, skill_name
-        )
-    } else if event_code.starts_with("cmdlib.run_command") {
-        format!(
-r#"import cmdlib
-
-def task():
-    result = {}
-    return {{'status': 'success', 'result': result}}
-
-task()"#,
-            event_code
-        )
-    } else {
-        return format!("{{\"status\": \"error\", \"message\": \"Unknown fast_execute event: {}\"}}", event_code);
-    };
-
-    match handle_general_execute(python_code).await {
-        Ok(result) => result,
-        Err(e) => format!("{{\"status\": \"error\", \"message\": \"{}\"}}", e),
-    }
 }

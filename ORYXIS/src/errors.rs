@@ -36,5 +36,24 @@ pub enum OryxisError {
 
     #[error("Unknown error occurred : {0}")]
     Unknown(String),
+
+    // YENİ
+    #[error("Skill not found: {0}")]
+    SkillNotFound(String),
+
+    #[error("Security violation - blocked command: {0}")]
+    SecurityViolation(String),
+
+    #[error("Memory operation failed: {0}")]
+    MemoryError(String),
+
+    #[error("File operation failed: {0}")]
+    FileOperationError(String),
+
+    #[error("Network request failed: {0}")]
+    NetworkError(String),
+
+    #[error("WhatsApp API error: {0}")]
+    WhatsAppError(String),
 }
 

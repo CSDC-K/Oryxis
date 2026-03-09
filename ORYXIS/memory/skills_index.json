@@ -1,16 +1,14 @@
 [
     {
-        "name" : "cmdlib",
-        "description" : "A library for handling cmd commands.",
-        "tags" : ["cmd", "command", "shell", "terminal", "cli", "app", "file", "process", "system", "os"],
-        "file" : "skills/cmdlib.yaml"
+        "name": "cmd_lib",
+        "description": "Execute Windows CMD commands, launch applications, control processes.",
+        "tags": ["cmd", "command", "shell", "terminal", "cli", "app", "file", "process", "system", "os", "open", "launch", "run"],
+        "file": "skills/cmd_lib.yaml"
     },
-
     {
-        "name" : "youtubelib",
-        "description" : "A library for handling youtube commands.",
-        "tags" : ["youtube", "video", "media", "app", "file", "process", "system", "os"],
-        "file" : "skills/youtubelib.yaml"
+        "name": "file_lib",
+        "description": "Safe file system operations - read, write, append, copy, move, delete files and directories, metadata retrieval, SHA-256 hashing.",
+        "tags": ["file", "read", "write", "edit", "document", "log", "config", "directory", "folder", "search", "text", "hash", "metadata", "copy", "move", "delete"],
+        "file": "skills/file_lib.yaml"
     }
-
 ]

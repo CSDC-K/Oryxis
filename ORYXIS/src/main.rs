@@ -4,6 +4,8 @@ pub mod llmapi;                 // LLMAPI
 pub mod executer;               // PYTHON CODE EXECUTER
 pub mod script;                 // RESPONSE CATCHER 
 pub mod errors;                 // ERROR TYPES
+pub mod action_executor;        // ACTION EXECUTOR
+pub mod tts;                    // TTS MODULE
 
 
 use dotenv::dotenv;             // READING .ENV FILE
@@ -14,12 +16,13 @@ use std::io::{self, Read};      // READING PROMPT.TXT
 
 #[tokio::main]
 async fn main() -> Result<(), errors::OryxisError> {
-    // Env Settings
     dotenv().ok();
 
+    // Env Settings
     let api_key = env::var("API_KEY");
     let api_type = env::var("API_TYPE");
     let llm_model = env::var("LLM_MODEL");
+    let tts_voice = env::var("TTS").unwrap_or_default();
 
     let api_key = match api_key {
         Ok(val) => val,
@@ -46,18 +49,18 @@ async fn main() -> Result<(), errors::OryxisError> {
     };
 
 
-    let mut file = File::open("prompt.txt").map_err(|e| errors::OryxisError::PromptFileError(e.to_string()))?;
+    let mut file = File::open("prompt.md").map_err(|e| errors::OryxisError::PromptFileError(e.to_string()))?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).map_err(|e| errors::OryxisError::PromptFileError(e.to_string()))?;
 
     match api_type.as_str() {
-        "LLMAPI" => llmapi::llmapi(api_key, contents, llm_model)
-        .await
-        .map_err(|e| errors::OryxisError::LLMApiRunError(e.to_string()))?,
-        "GEMINI" => gemini_api::gemini_api(api_key, contents, llm_model)
-        .await
-        .map_err(|e| errors::OryxisError::GeminiRunError(e.to_string()))?,
-        "GROQ" => groq_api::groq_api(api_key, contents, llm_model)
+        "LLMAPI" => llmapi::llmapi(api_key, contents, llm_model, tts_voice)
+            .await
+            .map_err(|e| errors::OryxisError::LLMApiRunError(e.to_string()))?,
+        "GEMINI" => gemini_api::gemini_api(api_key, contents, llm_model, tts_voice)
+            .await
+            .map_err(|e| errors::OryxisError::GeminiRunError(e.to_string()))?,
+        "GROQ" => groq_api::groq_api(api_key, contents, llm_model, tts_voice)
             .await
             .map_err(|e| errors::OryxisError::GroqRunError(e.to_string()))?,
         _ => return Err(errors::OryxisError::ApiTypeError(format!("API_TYPE_ERROR! -> Not Founded API Type")))

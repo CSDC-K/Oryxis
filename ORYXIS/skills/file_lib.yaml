@@ -1,0 +1,85 @@
+name: file_lib
+description: >
+  Safe file system operations. Read, write, append, copy, move, delete files
+  and directories. Also supports metadata retrieval and SHA-256 hashing.
+
+version: "2.0"
+author: "Kuzey"
+entrypoint: skills/dll/file_lib.dll
+wrapper: skills/lib/file_lib.py
+
+tags:
+  - file
+  - read
+  - write
+  - edit
+  - delete
+  - copy
+  - move
+  - directory
+  - folder
+  - metadata
+  - hash
+  - log
+  - config
+
+abilities:
+  read_file:
+    usage: "file_lib.read_file(path)"
+  write_file:
+    usage: "file_lib.write_file(path, content)"
+  append_to_file:
+    usage: "file_lib.append_to_file(path, content)"
+  delete_file:
+    usage: "file_lib.delete_file(path)"
+  move_file:
+    usage: "file_lib.move_file(src, dst)"
+  copy_file:
+    usage: "file_lib.copy_file(src, dst)"
+  list_directory:
+    usage: "file_lib.list_directory(path)"
+  create_directory:
+    usage: "file_lib.create_directory(path)"
+  delete_directory:
+    usage: "file_lib.delete_directory(path)"
+  create_file:
+    usage: "file_lib.create_file(path)"
+  path_exists:
+    usage: "file_lib.path_exists(path)  # returns bool"
+  get_metadata:
+    usage: "file_lib.get_metadata(path)  # returns JSON: size, modified, is_file, is_dir"
+  get_file_hash:
+    usage: "file_lib.get_file_hash(path)  # returns SHA-256 hex string"
+
+examples:
+  - title: Read a file
+    code: |
+      import file_lib
+      def task():
+          content = file_lib.read_file("C:/path/to/file.txt")
+          return {"status": "success", "data": content}
+      task()
+
+  - title: Write a file
+    code: |
+      import file_lib
+      def task():
+          result = file_lib.write_file("C:/path/to/file.txt", "hello world")
+          return {"status": "success", "result": result}
+      task()
+
+  - title: List directory
+    code: |
+      import file_lib, json
+      def task():
+          entries = json.loads(file_lib.list_directory("C:/Users"))
+          return {"status": "success", "entries": entries}
+      task()
+
+  - title: File metadata
+    code: |
+      import file_lib, json
+      def task():
+          meta = json.loads(file_lib.get_metadata("C:/path/to/file.txt"))
+          return {"status": "success", "meta": meta}
+      task()

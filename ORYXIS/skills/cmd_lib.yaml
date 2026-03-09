@@ -1,0 +1,60 @@
+name: cmd_lib
+description: >
+  Execute Windows CMD commands, launch applications, and control system-level
+  processes. Import as 'import cmd_lib' or use directly from skills.lib.
+
+version: "2.0"
+author: "Kuzey"
+entrypoint: skills/dll/cmdlib.dll
+wrapper: skills/lib/cmdlib.py
+
+tags:
+  - cmd
+  - command
+  - shell
+  - terminal
+  - app
+  - open
+  - launch
+  - run
+  - process
+  - system
+
+abilities:
+  run_command:
+    description: >
+      Execute any Windows command. Returns stdout on success, ERROR: stderr on failure.
+    usage: "cmd_lib.run_command(cmd, args_list)"
+
+examples:
+  - title: Open Spotify
+    code: |
+      import cmd_lib
+      def task():
+          result = cmd_lib.run_command("cmd", ["/C", "start", "spotify://"])
+          return {"status": "success", "result": result}
+      task()
+
+  - title: Open URL in browser
+    code: |
+      import cmd_lib
+      def task():
+          result = cmd_lib.run_command("cmd", ["/C", "start", "https://google.com"])
+          return {"status": "success", "result": result}
+      task()
+
+  - title: Open application
+    code: |
+      import cmd_lib
+      def task():
+          result = cmd_lib.run_command("cmd", ["/C", "start", "calc"])
+          return {"status": "success", "result": result}
+      task()
+
+  - title: Run shell command and get output
+    code: |
+      import cmd_lib
+      def task():
+          result = cmd_lib.run_command("cmd", ["/C", "dir", "C:\\"])
+          return {"status": "success", "data": result}
+      task()

@@ -1,38 +1,44 @@
-use pyo3::prelude::*;
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
 use std::process::Command;
-use std::thread;
 
+#[no_mangle]
+pub extern "C" fn run_command(cmd: *const c_char, args_json: *const c_char) -> *mut c_char {
+    let result = _run_command(cmd, args_json);
+    CString::new(result).unwrap_or_default().into_raw()
+}
 
-fn execute_command(cmd: String, args: Vec<String>) -> Result<String, String> {
-    let output = Command::new(cmd)
-        .args(args)
-        .output()
-        .map_err(|e| e.to_string())?;
+fn _run_command(cmd: *const c_char, args_json: *const c_char) -> String {
+    let cmd_str = unsafe {
+        if cmd.is_null() { return r#"{"error":"null cmd"}"#.to_string(); }
+        match CStr::from_ptr(cmd).to_str() {
+            Ok(s) => s.to_string(),
+            Err(_) => return r#"{"error":"invalid cmd utf8"}"#.to_string(),
+        }
+    };
 
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        Err(format!("ERROR: {}", String::from_utf8_lossy(&output.stderr)))
+    let args_str = unsafe {
+        if args_json.is_null() { "[]".to_string() }
+        else { CStr::from_ptr(args_json).to_str().unwrap_or("[]").to_string() }
+    };
+
+    let args: Vec<String> = serde_json::from_str(&args_str).unwrap_or_default();
+
+    match Command::new(&cmd_str).args(&args).output() {
+        Ok(output) => {
+            if output.status.success() {
+                String::from_utf8_lossy(&output.stdout).to_string()
+            } else {
+                format!("ERROR: {}", String::from_utf8_lossy(&output.stderr))
+            }
+        }
+        Err(e) => format!("ERROR: {}", e),
     }
 }
 
-#[pyfunction]
-// py: Python parametresini eklemelisin
-pub fn run_command(py: Python<'_>, cmd: String, args: Vec<String>) -> PyResult<String> {
-
-    let result = py.allow_threads(move || {
-        thread::spawn(move || {
-            execute_command(cmd, args)
-        }).join().map_err(|_| "Thread panicked")?
-    });
-
-    // Result'ı PyResult'a çeviriyoruz
-    result.map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
-}
-
-#[pymodule]
-fn cmdlib(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // run_command fonksiyonunu modüle ekliyoruz
-    m.add_function(wrap_pyfunction!(run_command, m)?)?;
-    Ok(())
+#[no_mangle]
+pub extern "C" fn free_string(ptr: *mut c_char) {
+    if !ptr.is_null() {
+        unsafe { let _ = CString::from_raw(ptr); }
+    }
 }
