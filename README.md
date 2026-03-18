@@ -49,5 +49,6 @@ TTS=en-AU-WilliamMultilingualNeural // Edge-tts
 - cd ORYXIS
 - cargo run --release
 
-## NOTE
-prompt is made by me and for me, so you can see a name or personalized texts in prompt file you have to change it for your self
+### NOTE (READ THAT SENTENCES!)
+- prompt is made by me and for me, so you can see a name or personalized texts in prompt file you have to change it for your self
+- also, read whole prompt because of there is some rules can be bad for your self.
