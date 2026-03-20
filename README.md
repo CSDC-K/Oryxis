@@ -4,6 +4,9 @@
 
 Unlike standard chatbots, Oryxis is built for speed, memory, and action. It doesn't just talk; it thinks and interacts with your system.
 
+[!IMPORTANT]
+Note for Hack Club Testers: > When you launch the application for the first time, please type "tester" in response to the first question. This will automatically provision a temporary API key for your testing session.
+
 ## 🧠 Core Architecture
 
 Oryxis is built on three main pillars:
@@ -12,8 +15,6 @@ Oryxis is built on three main pillars:
 2.  **Long-Term Memory Integration:**  ** Coming soon... **
 3.  **Search & Retrieval:** A smart skill-fetching mechanism that keeps the LLM's context window clean by only loading relevant tools on demand.
 
-## ⚡ Powered by Rust & Groq
-Built with **Rust** for memory safety and blazing-fast performance. Currently optimized for **Llama 4 Maverick (17B-128E)** via Groq, achieving over 500+ TPS for near-instant responses.
 
 ## 🚀 Quick Start
 
